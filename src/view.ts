@@ -19,11 +19,7 @@ export class TreeViewProvider implements vscode.TreeDataProvider<vscode.TreeItem
     new TreeItem('Build', 'commit-build', new vscode.ThemeIcon('star')),
     new TreeItem('Revert', 'commit-revert', new vscode.ThemeIcon('plug')),
     new TreeItem('Perf', 'commit-perf', new vscode.ThemeIcon('beaker')),
-<<<<<<< HEAD
     new TreeItem('Test', 'commit-test', new vscode.ThemeIcon('symbol-color')),
-=======
-    new TreeItem('Test', 'commit-test', new vscode.ThemeIcon('debug-alt-small')),
->>>>>>> 0d824f2373272478bd97266b43806d6d25b23396
 
   ];
 
