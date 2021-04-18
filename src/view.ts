@@ -9,7 +9,8 @@ class TreeItem extends vscode.TreeItem {
     this.iconPath = iconPath;
   }
 }
-
+// 安装插件后 默认配置文件读取插件内 》读取当前项目下是否含有commitrc文件 》如有即合并配置
+// 菜单功能包括 编辑  导出   
 export class TreeViewProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   private data: TreeItem[] = [
     new TreeItem('Feat', 'commit-feat', new vscode.ThemeIcon('beaker')),
