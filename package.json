@@ -1,6 +1,6 @@
 {
   "name": "commit-lint",
-  "displayName": "Commit-Lint",
+  "disnoteName": "Commit-Lint",
   "description": "",
   "version": "0.0.1",
   "author": "trent<hi@ttt.tl>",
@@ -15,11 +15,18 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "jsonValidation": [
+      {
+        "fileMatch": ".commitrc",
+        "url": "./schema/commitrc.json"
+      }
+    ],
     "views": {
       "scm": [
         {
           "id": "commitLintActionsTreeView",
-          "name": "Commit-Lint"
+          "name": "Commit-Lint",
+          "when": "gitOpenRepositoryCount >= 1"
         }
       ]
     },
@@ -29,6 +36,54 @@
         "title": "Hello World",
         "category": "commit-lint",
         "icon": "$(ellipsis)"
+      },
+      {
+        "command": "commit-lint.feat",
+        "title": "New features completed",
+        "category": "commit-lint",
+        "icon": "$(note)"
+      },
+      {
+        "command": "commit-lint.fix",
+        "title": "Fixed a bug",
+        "category": "commit-lint",
+        "icon": "$(note)"
+      },
+      {
+        "command": "commit-lint.refactor",
+        "title": "Refactoring module",
+        "category": "commit-lint",
+        "icon": "$(note)"
+      },
+      {
+        "command": "commit-lint.chore",
+        "title": "Chore on the project",
+        "category": "commit-lint",
+        "icon": "$(note)"
+      },
+      {
+        "command": "commit-lint.build",
+        "title": "Build a new version",
+        "category": "commit-lint",
+        "icon": "$(note)"
+      },
+      {
+        "command": "commit-lint.revert",
+        "title": "Revert something",
+        "category": "commit-lint",
+        "icon": "$(note)"
+      },
+      {
+        "command": "commit-lint.perf",
+        "title": "Changes in performance",
+        "category": "commit-lint",
+        "icon": "$(note)"
+      },
+      {
+        "command": "commit-lint.test",
+        "title": "Add test",
+        "category": "commit-lint",
+        "icon": "$(note)"
       }
     ],
     "menus": {
@@ -37,6 +92,48 @@
           "command": "commit-lint.helloWorld",
           "group": "navigation",
           "when": "view == commitLintActionsTreeView"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "commit-lint.feat",
+          "when": "viewItem == commit-feat",
+          "group": "inline@1"
+        },
+        {
+          "command": "commit-lint.fix",
+          "when": "viewItem == commit-fix",
+          "group": "inline@2"
+        },
+        {
+          "command": "commit-lint.refactor",
+          "when": "viewItem == commit-refactor",
+          "group": "inline@3"
+        },
+        {
+          "command": "commit-lint.chore",
+          "when": "viewItem == commit-chore",
+          "group": "inline@4"
+        },
+        {
+          "command": "commit-lint.build",
+          "when": "viewItem == commit-build",
+          "group": "inline@5"
+        },
+        {
+          "command": "commit-lint.revert",
+          "when": "viewItem == commit-revert",
+          "group": "inline@6"
+        },
+        {
+          "command": "commit-lint.perf",
+          "when": "viewItem == commit-perf",
+          "group": "inline@7"
+        },
+        {
+          "command": "commit-lint.test",
+          "when": "viewItem == commit-test",
+          "group": "inline@8"
         }
       ]
     }
