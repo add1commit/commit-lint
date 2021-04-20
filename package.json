@@ -1,162 +1,66 @@
 {
-  "name": "commit-lint",
-  "disnoteName": "Commit-Lint",
-  "description": "",
-  "version": "0.0.1",
-  "author": "trent<hi@ttt.tl>",
-  "engines": {
-    "vscode": "^1.55.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "*"
-  ],
-  "main": "./out/extension.js",
-  "contributes": {
-    "jsonValidation": [
-      {
-        "fileMatch": ".commitrc",
-        "url": "./schema/commitrc.json"
-      }
-    ],
-    "views": {
-      "scm": [
-        {
-          "id": "commitLintActionsTreeView",
-          "name": "Commit-Lint",
-          "when": "gitOpenRepositoryCount >= 1"
-        }
-      ]
+    "name": "commit-lint",
+    "disnoteName": "Commit-Lint",
+    "description": "",
+    "version": "0.0.1",
+    "author": "trent<hi@ttt.tl>",
+    "engines": {
+        "vscode": "^1.55.0"
     },
-    "commands": [
-      {
-        "command": "commit-lint.helloWorld",
-        "title": "Hello World",
-        "category": "commit-lint",
-        "icon": "$(ellipsis)"
-      },
-      {
-        "command": "commit-lint.feat",
-        "title": "New features completed",
-        "category": "commit-lint",
-        "icon": "$(note)"
-      },
-      {
-        "command": "commit-lint.fix",
-        "title": "Fixed a bug",
-        "category": "commit-lint",
-        "icon": "$(note)"
-      },
-      {
-        "command": "commit-lint.refactor",
-        "title": "Refactoring module",
-        "category": "commit-lint",
-        "icon": "$(note)"
-      },
-      {
-        "command": "commit-lint.chore",
-        "title": "Chore on the project",
-        "category": "commit-lint",
-        "icon": "$(note)"
-      },
-      {
-        "command": "commit-lint.build",
-        "title": "Build a new version",
-        "category": "commit-lint",
-        "icon": "$(note)"
-      },
-      {
-        "command": "commit-lint.revert",
-        "title": "Revert something",
-        "category": "commit-lint",
-        "icon": "$(note)"
-      },
-      {
-        "command": "commit-lint.perf",
-        "title": "Changes in performance",
-        "category": "commit-lint",
-        "icon": "$(note)"
-      },
-      {
-        "command": "commit-lint.test",
-        "title": "Add test",
-        "category": "commit-lint",
-        "icon": "$(note)"
-      }
+    "categories": [
+        "Other"
     ],
-    "menus": {
-      "view/title": [
-        {
-          "command": "commit-lint.helloWorld",
-          "group": "navigation",
-          "when": "view == commitLintActionsTreeView"
+    "activationEvents": [
+        "*"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "jsonValidation": [
+            {
+                "fileMatch": ".commitrc",
+                "url": "./schema/commitrc.json"
+            }
+        ],
+        "commands": [
+            {
+                "command": "commit-lint.init",
+                "title": "Commit Lint",
+                "category": "commit-lint",
+                "icon": {
+                    "dark": "resources/dark/init.svg",
+                    "light": "resources/light/init.svg"
+                }
+            }
+        ],
+        "menus": {
+            "scm/title": [
+                {
+                    "command": "commit-lint.init",
+                    "group": "navigation",
+                    "when": "scmProvider == git"
+                }
+            ]
         }
-      ],
-      "view/item/context": [
-        {
-          "command": "commit-lint.feat",
-          "when": "viewItem == commit-feat",
-          "group": "inline@1"
-        },
-        {
-          "command": "commit-lint.fix",
-          "when": "viewItem == commit-fix",
-          "group": "inline@2"
-        },
-        {
-          "command": "commit-lint.refactor",
-          "when": "viewItem == commit-refactor",
-          "group": "inline@3"
-        },
-        {
-          "command": "commit-lint.chore",
-          "when": "viewItem == commit-chore",
-          "group": "inline@4"
-        },
-        {
-          "command": "commit-lint.build",
-          "when": "viewItem == commit-build",
-          "group": "inline@5"
-        },
-        {
-          "command": "commit-lint.revert",
-          "when": "viewItem == commit-revert",
-          "group": "inline@6"
-        },
-        {
-          "command": "commit-lint.perf",
-          "when": "viewItem == commit-perf",
-          "group": "inline@7"
-        },
-        {
-          "command": "commit-lint.test",
-          "when": "viewItem == commit-test",
-          "group": "inline@8"
-        }
-      ]
+    },
+    "scripts": {
+        "vscode:prepublish": "yarn run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "yarn run compile && yarn run lint",
+        "lint": "eslint src --ext ts",
+        "test": "node ./out/test/runTest.js"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.55.0",
+        "@types/glob": "^7.1.3",
+        "@types/mocha": "^8.0.4",
+        "@types/node": "^12.11.7",
+        "eslint": "^7.19.0",
+        "@typescript-eslint/eslint-plugin": "^4.14.1",
+        "@typescript-eslint/parser": "^4.14.1",
+        "glob": "^7.1.6",
+        "mocha": "^8.2.1",
+        "typescript": "^4.1.3",
+        "vscode-test": "^1.5.0"
     }
-  },
-  "scripts": {
-    "vscode:prepublish": "yarn run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "yarn run compile && yarn run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
-  },
-  "devDependencies": {
-    "@types/vscode": "^1.55.0",
-    "@types/glob": "^7.1.3",
-    "@types/mocha": "^8.0.4",
-    "@types/node": "^12.11.7",
-    "eslint": "^7.19.0",
-    "@typescript-eslint/eslint-plugin": "^4.14.1",
-    "@typescript-eslint/parser": "^4.14.1",
-    "glob": "^7.1.6",
-    "mocha": "^8.2.1",
-    "typescript": "^4.1.3",
-    "vscode-test": "^1.5.0"
-  }
 }
