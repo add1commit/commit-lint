@@ -5,6 +5,16 @@ import { QuickPickItem, window, Disposable, QuickInputButton, QuickInput, Extens
  *
  * This first part uses the helper class `MultiStepInput` that wraps the API for the multi-step case.
  */
+export interface State {
+    title: string;
+    step: number;
+    totalSteps: number;
+    type: QuickPickItem;
+    scope: QuickPickItem;
+    subject: string;
+    body: string;
+    footer: string;
+}
 
 export async function multiStepInput(context: ExtensionContext) {
     class Button implements QuickInputButton {
@@ -18,17 +28,6 @@ export async function multiStepInput(context: ExtensionContext) {
         },
         'Skip and finish',
     );
-
-    interface State {
-        title: string;
-        step: number;
-        totalSteps: number;
-        type: QuickPickItem;
-        scope: QuickPickItem;
-        subject: string;
-        body: string;
-        footer: string;
-    }
 
     async function collectInputs() {
         const state = {} as Partial<State>;
@@ -136,9 +135,7 @@ export async function multiStepInput(context: ExtensionContext) {
         return desc === 'vscode' ? 'Name not unique' : undefined;
     }
 
-    const state = await collectInputs();
-    console.log(state);
-    window.showInformationMessage(`Its' done.`);
+    return await collectInputs();
 }
 
 // -------------------------------------------------------

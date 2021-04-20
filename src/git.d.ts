@@ -9,9 +9,9 @@ export interface Git {
     readonly path: string;
 }
 
-// export interface InputBox {
-//     value: string;
-// }
+export interface InputBox {
+    value: string;
+}
 
 export const enum RefType {
     Head,
@@ -120,7 +120,7 @@ export interface LogOptions {
 
 export interface Repository {
     readonly rootUri: Uri;
-    readonly inputBox: SourceControlInputBox;
+    readonly inputBox: InputBox;
     readonly state: RepositoryState;
     readonly ui: RepositoryUIState;
 
