@@ -1,10 +1,11 @@
-import { GitExtension, Repository } from './git';
-import { ExtensionContext, commands, window, extensions, WorkspaceFolder, workspace } from 'vscode';
-import { StatusBar } from './StatusBar';
-import { multiStepInput, State } from './multiStepInput';
+import { Repository } from './types/git';
+import { ExtensionContext, commands, window } from 'vscode';
+import { initCommitLint, State } from './service/stepService';
+import CommitLintService from './service/commitService';
+import { getGitExtension, getWorkspaceFolder } from './utils';
+
 /**
- * This method is called when your extension is activated.
- * Your extension is activated the very first time the command is executed.
+ * This method is called when commitLint is activated.
  *
  * @param context - The context of the extension.
  */
@@ -16,7 +17,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
 
         const { name, uri } = workspaceFolder;
 
-        new StatusBar();
+        new CommitLintService().registerDisposables();
 
         context.subscriptions.push(
             commands.registerCommand('commit-lint.init', async () => {
@@ -35,7 +36,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
                     window.showInformationMessage(`The folder(${name}) needs to initialized Repo.`);
                     return;
                 }
-                const state = await multiStepInput(context);
+                const state = await initCommitLint(context);
                 await modifyCommit(selectedRepository, state);
             }),
         );
@@ -53,29 +54,4 @@ async function modifyCommit(repo: Repository, state: State) {
     console.log(state);
     repo.inputBox.value = '1111';
     window.showInformationMessage('');
-}
-
-/**
- * Gets the git extension.
- */
-async function getGitExtension() {
-    const vscodeGit = extensions.getExtension<GitExtension>('vscode.git');
-    const gitExtension = vscodeGit && vscodeGit.exports;
-    return gitExtension && gitExtension.getAPI(1);
-}
-
-/**
- * Gets the workspace path.
- */
-async function getWorkspaceFolder(): Promise<WorkspaceFolder> {
-    let workspaceFolder: WorkspaceFolder | undefined;
-    if (workspace.workspaceFolders && workspace.workspaceFolders.length === 1) {
-        workspaceFolder = workspace.workspaceFolders[0];
-    } else {
-        workspaceFolder = await window.showWorkspaceFolderPick();
-    }
-    if (!workspaceFolder) {
-        throw new Error('No workspace folder was set.');
-    }
-    return workspaceFolder;
 }
