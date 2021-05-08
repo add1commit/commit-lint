@@ -8,6 +8,9 @@
         "type": "object",
         "minLength": 1
       }
-    }
+    },
+    "rules": {},
+    "placeholder": {},
+    "title": {}
   }
 }
