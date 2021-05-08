@@ -1,8 +1,20 @@
-import { Repository } from './types/git';
-import { ExtensionContext, commands, window } from 'vscode';
-import { initCommitLint, State } from './service/stepService';
-import CommitLintService from './service/commitService';
+import { ExtensionContext, commands, window, workspace } from 'vscode';
+import { collectFlow } from './service/flowService';
+import { LoggingService } from './service/loggingService';
+import { StatusBarService } from './service/statusBarService';
+import { CommitLintService } from './service/commitService';
 import { getGitExtension, getWorkspaceFolder } from './utils';
+import { State } from '../typings/commitrc';
+import { Repository } from '../typings/git';
+
+import { EXTENSION_DISABLED, GIT_NOT_ENABLED, REPO_NO_INIT, RESTART_TO_ENABLE } from './message';
+import { setGlobalState, setWorkspaceState } from './utils/state';
+
+const extensionPackage = require('../package.json');
+
+const extensionName = extensionPackage.name || 'dev.commit-lint';
+const extensionVersion = extensionPackage.version || '0.0.0';
+const loggingService = new LoggingService();
 
 /**
  * This method is called when commitLint is activated.
@@ -10,38 +22,60 @@ import { getGitExtension, getWorkspaceFolder } from './utils';
  * @param context - The context of the extension.
  */
 export async function activate(context: ExtensionContext): Promise<void> {
+    const statusBarService = new StatusBarService();
+    loggingService.info(`Extension Name: ${extensionName}.`);
+    loggingService.info(`Extension Version: ${extensionVersion}.`);
+
     try {
-        const workspaceFolder = await getWorkspaceFolder().catch((error) => {
-            throw new Error();
-        });
+        const workspaceFolder = await getWorkspaceFolder();
 
         const { name, uri } = workspaceFolder;
 
-        new CommitLintService().registerDisposables();
+        const { enable, enableDebugLogs } = workspace.getConfiguration('commit-lint');
 
-        context.subscriptions.push(
-            commands.registerCommand('commit-lint.init', async () => {
-                const git = await getGitExtension();
+        if (enableDebugLogs) {
+            loggingService.setOutputLevel('DEBUG');
+        }
 
-                if (!git) {
-                    window.showErrorMessage('Unable to load Git Extension');
-                    return;
-                }
-                if (!uri) {
-                    console.log(workspaceFolder);
-                    return;
-                }
-                const selectedRepository = git.repositories.find((repo) => repo.rootUri.path === workspaceFolder.uri.fsPath);
-                if (!selectedRepository) {
-                    window.showInformationMessage(`The folder(${name}) needs to initialized Repo.`);
-                    return;
-                }
-                const state = await initCommitLint(context);
-                await modifyCommit(selectedRepository, state);
-            }),
-        );
+        if (!enable) {
+            loggingService.info(EXTENSION_DISABLED);
+            context.subscriptions.push(
+                workspace.onDidChangeConfiguration((event) => {
+                    if (event.affectsConfiguration('commit-lint.enable')) {
+                        loggingService.info(RESTART_TO_ENABLE);
+                    }
+                }),
+            );
+            return;
+        }
+        setGlobalState(context.globalState);
+        setWorkspaceState(context.workspaceState);
+        const commitService = new CommitLintService(loggingService, statusBarService);
+
+        commitService.handleConfiguration(uri);
+
+        const openOutputCommand = commands.registerCommand('commit-lint.output', () => loggingService.show());
+
+        const initCommand = commands.registerCommand('commit-lint.init', async () => {
+            const gitExtension = await getGitExtension();
+
+            if (!gitExtension || !uri) {
+                throw new Error(GIT_NOT_ENABLED);
+            }
+
+            const currentRepo = gitExtension.repositories.find((repo) => repo.rootUri.fsPath === workspaceFolder.uri.fsPath);
+
+            if (!currentRepo) {
+                throw new Error(REPO_NO_INIT(name));
+            }
+
+            const state = await collectFlow(context, uri);
+            await output(currentRepo, state);
+        });
+
+        context.subscriptions.push(commitService, openOutputCommand, initCommand, ...commitService.registerDisposables());
     } catch (error) {
-        window.showInformationMessage(error.message);
+        loggingService.error(error);
     }
 }
 
@@ -50,8 +84,21 @@ export function deactivate() {}
 /**
  * Modify the git commit.
  */
-async function modifyCommit(repo: Repository, state: State) {
-    console.log(state);
-    repo.inputBox.value = '1111';
-    window.showInformationMessage('');
+async function output(repo: Repository, state: State) {
+    const { type, subject, scope, body, footer } = state;
+    let value = `${type.label}: `;
+    if (scope) {
+        value = `${type.label}(${scope}): `;
+    }
+    if (subject) {
+        value = value + `${subject}`;
+    }
+    if (body) {
+        value = value + `\n\n${body}`;
+    }
+    if (footer) {
+        value = value + `\n\n${footer}`;
+    }
+    repo.inputBox.value = value;
+    loggingService.info('Output:', state);
 }

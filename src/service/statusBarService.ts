@@ -12,6 +12,7 @@ export class StatusBarService {
         // Setup the statusBarItem
         this.statusBarItem = window.createStatusBarItem(StatusBarAlignment.Right, -1);
         this.statusBarItem.text = 'Commit-Lint';
+        this.statusBarItem.command = 'commit-lint.output';
         this.update(CommitLintStatus.enable);
         this.statusBarItem.show();
     }
