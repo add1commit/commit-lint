@@ -1,40 +1,104 @@
-import * as vscode from 'vscode';
-import { TreeViewProvider } from './view';
+import { ExtensionContext, commands, window, workspace } from 'vscode';
+import { collectFlow } from './service/flowService';
+import { LoggingService } from './service/loggingService';
+import { StatusBarService } from './service/statusBarService';
+import { CommitLintService } from './service/commitService';
+import { getGitExtension, getWorkspaceFolder } from './utils';
+import { State } from '../typings/commitrc';
+import { Repository } from '../typings/git';
+
+import { EXTENSION_DISABLED, GIT_NOT_ENABLED, REPO_NO_INIT, RESTART_TO_ENABLE } from './message';
+import { setGlobalState, setWorkspaceState } from './utils/state';
+
+const extensionPackage = require('../package.json');
+
+const extensionName = extensionPackage.name || 'dev.commit-lint';
+const extensionVersion = extensionPackage.version || '0.0.0';
+const loggingService = new LoggingService();
 
 /**
- * This method is called when your extension is activated.
- * Your extension is activated the very first time the command is executed.
+ * This method is called when commitLint is activated.
  *
  * @param context - The context of the extension.
  */
-export async function activate(context: vscode.ExtensionContext): Promise<void> {
-  vscode.window.registerTreeDataProvider('commitLintActionsTreeView', new TreeViewProvider());
+export async function activate(context: ExtensionContext): Promise<void> {
+    const statusBarService = new StatusBarService();
+    loggingService.info(`Extension Name: ${extensionName}.`);
+    loggingService.info(`Extension Version: ${extensionVersion}.`);
 
-  const workspaceFolder = await getWorkspaceFolder();
-  console.log('Congratulations, your extension "commit-lint" is now active!');
+    try {
+        const workspaceFolder = await getWorkspaceFolder();
 
-  console.log(workspaceFolder);
-  let disposable = vscode.commands.registerCommand('commit-lint.helloWorld', async () => {
-    vscode.window.showInformationMessage('Hello World from Commit-Lint!');
-  });
+        const { name, uri } = workspaceFolder;
 
-  context.subscriptions.push(disposable);
+        const { enable, enableDebugLogs } = workspace.getConfiguration('commit-lint');
+
+        if (enableDebugLogs) {
+            loggingService.setOutputLevel('DEBUG');
+        }
+
+        if (!enable) {
+            loggingService.info(EXTENSION_DISABLED);
+            context.subscriptions.push(
+                workspace.onDidChangeConfiguration((event) => {
+                    if (event.affectsConfiguration('commit-lint.enable')) {
+                        loggingService.info(RESTART_TO_ENABLE);
+                    }
+                }),
+            );
+            return;
+        }
+        setGlobalState(context.globalState);
+        setWorkspaceState(context.workspaceState);
+        const commitService = new CommitLintService(loggingService, statusBarService);
+
+        commitService.handleConfiguration(uri);
+
+        const openOutputCommand = commands.registerCommand('commit-lint.output', () => loggingService.show());
+
+        const initCommand = commands.registerCommand('commit-lint.init', async () => {
+            const gitExtension = await getGitExtension();
+
+            if (!gitExtension || !uri) {
+                throw new Error(GIT_NOT_ENABLED);
+            }
+
+            const currentRepo = gitExtension.repositories.find((repo) => repo.rootUri.fsPath === workspaceFolder.uri.fsPath);
+
+            if (!currentRepo) {
+                throw new Error(REPO_NO_INIT(name));
+            }
+
+            const state = await collectFlow(context, uri);
+            await output(currentRepo, state);
+        });
+
+        context.subscriptions.push(commitService, openOutputCommand, initCommand, ...commitService.registerDisposables());
+    } catch (error) {
+        loggingService.error(error);
+    }
 }
 
 export function deactivate() {}
 
 /**
- * Gets the workspace path.
+ * Modify the git commit.
  */
-async function getWorkspaceFolder(): Promise<vscode.WorkspaceFolder> {
-  let workspaceFolder: vscode.WorkspaceFolder | undefined;
-  if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length === 1) {
-    workspaceFolder = vscode.workspace.workspaceFolders[0];
-  } else {
-    workspaceFolder = await vscode.window.showWorkspaceFolderPick();
-  }
-  if (!workspaceFolder) {
-    throw new Error('No workspace folder was set.');
-  }
-  return workspaceFolder;
+async function output(repo: Repository, state: State) {
+    const { type, subject, scope, body, footer } = state;
+    let value = `${type.label}: `;
+    if (scope) {
+        value = `${type.label}(${scope}): `;
+    }
+    if (subject) {
+        value = value + `${subject}`;
+    }
+    if (body) {
+        value = value + `\n\n${body}`;
+    }
+    if (footer) {
+        value = value + `\n\n${footer}`;
+    }
+    repo.inputBox.value = value;
+    loggingService.info('Output:', state);
 }

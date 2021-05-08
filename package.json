@@ -1,65 +1,177 @@
 {
-  "name": "commit-lint",
-  "displayName": "Commit-Lint",
-  "description": "",
-  "version": "0.0.1",
-  "author": "trent<hi@ttt.tl>",
-  "engines": {
-    "vscode": "^1.55.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "*"
-  ],
-  "main": "./out/extension.js",
-  "contributes": {
-    "views": {
-      "scm": [
-        {
-          "id": "commitLintActionsTreeView",
-          "name": "Commit-Lint"
-        }
-      ]
+    "name": "vscode.commit-lint",
+    "disnoteName": "CommitLint",
+    "description": "Lint commit messages",
+    "version": "0.0.1",
+    "author": "kol<hi@ttt.tl>",
+    "license": "MIT",
+    "engines": {
+        "vscode": "^1.55.0"
     },
-    "commands": [
-      {
-        "command": "commit-lint.helloWorld",
-        "title": "Hello World",
-        "category": "commit-lint",
-        "icon": "$(ellipsis)"
-      }
+    "categories": [
+        "Other"
     ],
-    "menus": {
-      "view/title": [
-        {
-          "command": "commit-lint.helloWorld",
-          "group": "navigation",
-          "when": "view == commitLintActionsTreeView"
+    "activationEvents": [
+        "*"
+    ],
+    "keywords": [
+        "git",
+        "vcs",
+        "semantic",
+        "conventional",
+        "commits"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "configuration": {
+            "type": "object",
+            "title": "CommitLint",
+            "properties": {
+                "commit-lint.enable": {
+                    "type": "boolean",
+                    "default": true,
+                    "markdownDescription": "Controls whether commit-lint is enabled or not.",
+                    "scope": "resource"
+                },
+                "commit-lint.enableDebugLogs": {
+                    "type": "boolean",
+                    "default": false,
+                    "markdownDescription": "Enable debug logs for troubleshooting.",
+                    "scope": "resource"
+                },
+                "commit-lint.ignoreFocusOut": {
+                    "type": "boolean",
+                    "default": true,
+                    "markdownDescription": "If the UI should stay open even when loosing UI focus."
+                },
+                "commit-lint.title": {
+                    "type": "object",
+                    "default": {
+                        "type": "Select type of this commit",
+                        "scope": "Enter scope of influence",
+                        "subject": "Enter subject of this commit",
+                        "body": "Desc specific content (Not required)",
+                        "footer": "Extra information? Like Issue ID"
+                    }
+                },
+                "commit-lint.placeholder": {
+                    "type": "object",
+                    "default": {
+                        "type": "Please select type...",
+                        "scope": "Please enter scope...",
+                        "subject": "Please enter subject...",
+                        "body": "Explain why you are making the change...",
+                        "footer": "Explain break change or enter issue id..."
+                    }
+                },
+                "commit-lint.types": {
+                    "type": "array",
+                    "default": [
+                        {
+                            "label": "Build",
+                            "detail": "Development changes related to the build system"
+                        },
+                        {
+                            "label": "CI",
+                            "detail": "Development changes related to the continuous integration and deployment system"
+                        },
+                        {
+                            "label": "Docs",
+                            "detail": "Documentation changes related to the project"
+                        },
+                        {
+                            "label": "Feat",
+                            "detail": "Production changes related to new backward-compatible abilities or functionality"
+                        },
+                        {
+                            "label": "Fix",
+                            "detail": "Production changes related to backward-compatible bug fixes"
+                        },
+                        {
+                            "label": "Perf",
+                            "detail": "Production changes related to backward-compatible performance improvements"
+                        },
+                        {
+                            "label": "Refactor",
+                            "detail": "Development changes related to modifying the codebase"
+                        },
+                        {
+                            "label": "Style",
+                            "detail": "Development changes related to styling the codebase"
+                        },
+                        {
+                            "label": "Test",
+                            "detail": "Development changes related to tests"
+                        }
+                    ]
+                },
+                "commit-lint.rules": {
+                    "type": "object",
+                    "default": {
+                        "scopeEmpty": true,
+                        "subjectEmpty": false,
+                        "bodyEmpty": true,
+                        "footerEmpty": true,
+                        "scopeMaxLength": 20,
+                        "scopeMinLength": 1,
+                        "subjectMaxLength": 80,
+                        "subjectMinLength": 10,
+                        "bodyMinLength": 100,
+                        "bodyMaxLength": 300,
+                        "footerMaxLength": 10,
+                        "footerMinLength": 1
+                    }
+                }
+            }
+        },
+        "jsonValidation": [
+            {
+                "fileMatch": ".commitrc",
+                "url": "./schema/commitrc.json"
+            }
+        ],
+        "commands": [
+            {
+                "command": "commit-lint.init",
+                "title": "Commit Lint",
+                "category": "commit-lint",
+                "icon": {
+                    "dark": "resources/dark/init.svg",
+                    "light": "resources/light/init.svg"
+                }
+            }
+        ],
+        "menus": {
+            "scm/title": [
+                {
+                    "command": "commit-lint.init",
+                    "group": "navigation",
+                    "when": "scmProvider == git"
+                }
+            ]
         }
-      ]
+    },
+    "scripts": {
+        "vscode:prepublish": "yarn run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "yarn run compile && yarn run lint",
+        "lint": "eslint src --ext ts",
+        "test": "node ./out/test/runTest.js"
+    },
+    "devDependencies": {
+        "@types/glob": "^7.1.3",
+        "@types/lodash": "^4.14.168",
+        "@types/mocha": "^8.0.4",
+        "@types/node": "^12.11.7",
+        "@types/vscode": "^1.55.0",
+        "@typescript-eslint/eslint-plugin": "^4.14.1",
+        "@typescript-eslint/parser": "^4.14.1",
+        "eslint": "^7.19.0",
+        "glob": "^7.1.6",
+        "lodash": "^4.17.21",
+        "mocha": "^8.2.1",
+        "typescript": "^4.1.3",
+        "vscode-test": "^1.5.0"
     }
-  },
-  "scripts": {
-    "vscode:prepublish": "yarn run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "yarn run compile && yarn run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
-  },
-  "devDependencies": {
-    "@types/vscode": "^1.55.0",
-    "@types/glob": "^7.1.3",
-    "@types/mocha": "^8.0.4",
-    "@types/node": "^12.11.7",
-    "eslint": "^7.19.0",
-    "@typescript-eslint/eslint-plugin": "^4.14.1",
-    "@typescript-eslint/parser": "^4.14.1",
-    "glob": "^7.1.6",
-    "mocha": "^8.2.1",
-    "typescript": "^4.1.3",
-    "vscode-test": "^1.5.0"
-  }
 }

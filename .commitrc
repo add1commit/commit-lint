@@ -1,0 +1,46 @@
+{
+    "extends": [],
+    "title": [],
+    "labels": [
+        {
+            "label": "build",
+            "detail": "Development changes related to the build system"
+        },
+        {
+            "label": "ci",
+            "detail": "Development changes related to the continuous integration and deployment system"
+        },
+        {
+            "label": "docs",
+            "detail": "Documentation changes related to the project"
+        },
+        {
+            "label": "feat",
+            "detail": "Production changes related to new backward-compatible abilities or functionality"
+        },
+        {
+            "label": "fix",
+            "detail": "Production changes related to backward-compatible bug fixes"
+        },
+        {
+            "label": "perf",
+            "detail": "Production changes related to backward-compatible performance improvements"
+        },
+        {
+            "label": "refactor",
+            "detail": "Development changes related to modifying the codebase"
+        },
+        {
+            "label": "style",
+            "detail": "Development changes related to styling the codebase"
+        },
+        {
+            "label": "test",
+            "detail": "Development changes related to tests"
+        }
+    ],
+    "scopes": [
+        {}
+    ],
+    "rules": []
+}
