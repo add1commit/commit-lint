@@ -1,8 +1,7 @@
-import * as _ from 'lodash';
 import { QuickPickItem, window, Disposable, QuickInputButton, QuickInput, ExtensionContext, QuickInputButtons, Uri } from 'vscode';
 import { State } from '../../typings/commitrc';
 import { Commitrc, CommitrcRules } from '../../typings/commitrc';
-import { mergeConfiguration } from '../utils';
+import { isBoolean, isEmpty, mergeConfiguration } from '../utils';
 import { getWorkspaceState } from '../utils/state';
 
 export async function collectFlow(context: ExtensionContext, repo: Uri) {
@@ -112,7 +111,7 @@ export async function collectFlow(context: ExtensionContext, repo: Uri) {
     async function validateScope(scope: string) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         const { scopeEmpty, scopeMaxLength, scopeMinLength } = rules as CommitrcRules;
-        if (_.isEmpty(scope)) {
+        if (isEmpty(scope)) {
             return !scopeEmpty;
         }
         if (scope.length >= scopeMaxLength) {
@@ -125,7 +124,7 @@ export async function collectFlow(context: ExtensionContext, repo: Uri) {
     async function validateSubject(subject: string) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         const { subjectEmpty, subjectMaxLength, subjectMinLength } = rules as CommitrcRules;
-        if (_.isEmpty(subject)) {
+        if (isEmpty(subject)) {
             return !subjectEmpty;
         }
         if (subject.length >= subjectMaxLength) {
@@ -139,7 +138,7 @@ export async function collectFlow(context: ExtensionContext, repo: Uri) {
     async function validateBodyDescription(desc: string) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         const { bodyEmpty, bodyMaxLength, bodyMinLength } = rules as CommitrcRules;
-        if (_.isEmpty(desc)) {
+        if (isEmpty(desc)) {
             return !bodyEmpty;
         }
         if (desc.length >= bodyMaxLength) {
@@ -153,7 +152,7 @@ export async function collectFlow(context: ExtensionContext, repo: Uri) {
     async function validateFooterDescription(desc: string) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         const { footerEmpty, footerMaxLength, footerMinLength } = rules as CommitrcRules;
-        if (_.isEmpty(desc)) {
+        if (isEmpty(desc)) {
             return !footerEmpty;
         }
         if (desc.length >= footerMaxLength) {
@@ -322,7 +321,7 @@ class FlowService {
                         validating = current;
                         const validationMessage = await current;
                         if (current === validating) {
-                            input.validationMessage = _.isBoolean(validationMessage) ? undefined : validationMessage;
+                            input.validationMessage = isBoolean(validationMessage) ? undefined : validationMessage;
                         }
                     }),
                     input.onDidHide(() => {

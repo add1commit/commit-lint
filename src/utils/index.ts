@@ -3,7 +3,6 @@ import { Commitrc } from '../../typings/commitrc';
 import { GitExtension } from '../../typings/git';
 import { existsSync, readFile } from 'fs';
 import { CHECK_CONFIG, NO_WORKSPACE } from '../message';
-import * as _ from 'lodash';
 import { getConfiguration } from '../config';
 /**
  * Gets the git extension.
@@ -60,22 +59,22 @@ export async function mergeConfiguration(workspaceConfig: Memento | unknown = {}
         origin.forEach((item: any) => tempMap.set(item.label, item));
         source.forEach((item: any) => tempMap.set(item.label, item));
         for (let [{}, value] of tempMap) {
-            if (_.isUndefined(value.visible) || value.visible) {
+            if (isUndefined(value.visible) || value.visible) {
                 mergeResult.push(value);
             }
         }
         return mergeResult;
     };
     const useConfiguration = (target: any, source: any = {}) => {
-        if (_.isEmpty(source)) {
+        if (isEmpty(source)) {
             return target;
         }
         let result: any = {};
 
         for (const key of Object.keys(target)) {
             if (key === 'types') {
-                result[key] = !_.isEmpty(source[key]) ? mergeCommitrcOption(target[key], source[key]) : target[key];
-            } else if (_.isObject(target[key])) {
+                result[key] = !isEmpty(source[key]) ? mergeCommitrcOption(target[key], source[key]) : target[key];
+            } else if (isObject(target[key])) {
                 result[key] = { ...target[key], ...source[key] };
             } else {
                 result[key] = source[key] ?? target[key];
@@ -89,3 +88,25 @@ export async function mergeConfiguration(workspaceConfig: Memento | unknown = {}
     }
     return useConfiguration(getConfiguration(), workspaceConfig);
 }
+export const isObject = (value: any): Boolean => {
+    return Object.prototype.toString.call(value).slice(8, -1) === 'Object';
+};
+
+export const isBoolean = (value?: any): value is boolean => {
+    return Object.prototype.toString.call(value).slice(8, -1) === 'Boolean';
+};
+
+export const isEmpty = (value?: any): Boolean => {
+    if (isObject(value)) {
+        return isEmptyObject(value);
+    }
+    return typeof value === 'undefined' || value === null || value === '' ? true : false;
+};
+
+export const isEmptyObject = (value?: any): Boolean => {
+    return !Object.keys(value).length;
+};
+
+export const isUndefined = (value: any): Boolean => {
+    return Object.prototype.toString.call(value).slice(8, -1) === 'Undefined';
+};
