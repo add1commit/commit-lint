@@ -21,7 +21,7 @@
         "Linters"
     ],
     "activationEvents": [
-        "onCommand: commit-lint.init"
+        "onCommand:commit-lint.init"
     ],
     "keywords": [
         "git",
