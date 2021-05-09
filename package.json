@@ -2,7 +2,7 @@
     "name": "commit-lint",
     "displayName": "Commit Lint",
     "description": "Lint commit messages for team",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "author": "kol<hi@ttt.tl>",
     "icon": "resources/logo.png",
     "repository": {
