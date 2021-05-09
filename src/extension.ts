@@ -26,6 +26,28 @@ export async function activate(context: ExtensionContext): Promise<void> {
     loggingService.info(`Extension Name: ${extensionName}.`);
     loggingService.info(`Extension Version: ${extensionVersion}.`);
 
+    /**
+     * Modify the git commit.
+     */
+    async function output(repo: Repository, state: State) {
+        const { type, subject, scope, body, footer } = state;
+        let value = `${type.label}: `;
+        if (scope) {
+            value = `${type.label}(${scope}): `;
+        }
+        if (subject) {
+            value = value + `${subject}`;
+        }
+        if (body) {
+            value = value + `\n\n${body}`;
+        }
+        if (footer) {
+            value = value + `\n\n${footer}`;
+        }
+        repo.inputBox.value = value;
+        loggingService.info('Output:', state);
+    }
+    
     try {
         const workspaceFolder = await getWorkspaceFolder();
 
@@ -80,25 +102,3 @@ export async function activate(context: ExtensionContext): Promise<void> {
 }
 
 export function deactivate() {}
-
-/**
- * Modify the git commit.
- */
-async function output(repo: Repository, state: State) {
-    const { type, subject, scope, body, footer } = state;
-    let value = `${type.label}: `;
-    if (scope) {
-        value = `${type.label}(${scope}): `;
-    }
-    if (subject) {
-        value = value + `${subject}`;
-    }
-    if (body) {
-        value = value + `\n\n${body}`;
-    }
-    if (footer) {
-        value = value + `\n\n${footer}`;
-    }
-    repo.inputBox.value = value;
-    loggingService.info('Output:', state);
-}
