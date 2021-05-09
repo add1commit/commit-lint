@@ -1,18 +1,30 @@
 {
-    "name": "vscode.commit-lint",
-    "disnoteName": "CommitLint",
-    "description": "Lint commit messages",
+    "name": "commit-lint",
+    "displayName": "Commit Lint",
+    "description": "Lint commit messages for team",
     "version": "0.0.1",
     "author": "kol<hi@ttt.tl>",
+    "icon": "resources/logo.png",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/tttl/commit-lint"
+    },
+    "bugs": {
+        "url": "https://github.com/tttl/commit-lint/issues"
+    },
     "license": "MIT",
+    "publisher": "kol",
     "engines": {
         "vscode": "^1.55.0"
     },
     "categories": [
-        "Other"
+        "Linters"
     ],
     "activationEvents": [
-        "*"
+        "onStartupFinished"
+    ],
+    "extensionKind": [
+        "workspace"
     ],
     "keywords": [
         "git",
